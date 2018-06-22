@@ -92,6 +92,7 @@ class MessageController:  ##TODO:DDoS memory fluid protection
             if self.messages[key].is_ready():
                 unread.append(self.messages[key])
                 #self.messages.pop(key)
+                logger.debug("Clean up:%s"%str(unread))
         return unread
 
 

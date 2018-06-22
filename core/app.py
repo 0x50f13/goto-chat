@@ -167,5 +167,4 @@ def main():
     login = input("Login:")
     passw = getpass.getpass("Password:")
     app.auth(User(login, passw))
-    app.set_ui(ui)
     ui.idle()

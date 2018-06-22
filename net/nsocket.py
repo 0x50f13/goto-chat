@@ -31,6 +31,7 @@ def _udp_send(prefix: bytes, data: bytes, ip: str, port: int):
     data = chunks(data, MAX_PACKET_SIZE)
     for chunk in data:
         sock.sendto(prefix + chunk, (ip, port))
+    logger.debug("Exit:_udp_send")
     sock.close()
 
 
