@@ -114,4 +114,6 @@ def main():
     me = User("user", "password")
     time.sleep(1)
     app.auth(me)
+    input("[PRESS ENTER TO TEST]")
+    app.test()
     app.idle()
