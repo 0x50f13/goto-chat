@@ -1,7 +1,7 @@
 import logging
 import socket
 
-from core.config import LOGFORMAT, APP_PORT
+from core.config import LOGFORMAT, APP_PORT, MAX_PACKET_SIZE
 
 log_formatter = logging.Formatter(LOGFORMAT)
 logger = logging.getLogger(__name__)
@@ -30,3 +30,16 @@ class UDPListener:
     def reset(self):
         self.s.close()
         self.s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+    def set_data_handler(self,handler):
+        '''handler:fun<-args:data'''
+        self.data_handler=handler
+
+    def run(self):
+        logger.info("Setting up on %s:%d"%(self.ip, self.port))
+        self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.s.bind((self.ip, self.port))
+        assert hasattr(self,"data_handler")
+        while True:
+            data=self.s.recvfrom(MAX_PACKET_SIZE)
+            self.data_handler(data)

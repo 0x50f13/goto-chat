@@ -6,3 +6,6 @@ MESSAGE_ACCEPT = b'\6\2'
 
 def gen_wait_message():
     return MESSAGE_ACCEPT + ip2bytes(local_ip())
+
+def decode_message(msg):
+    cmd=msg[:2]
