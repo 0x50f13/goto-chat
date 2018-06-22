@@ -70,6 +70,7 @@ class App:
         for node in network.known_nodes:
             udp_send(MESSAGE_AUTH+payload,node[0],APP_PORT)
         logger.info("Done sending auth requests to other nodes")
+
     def connect(self):
         logger.info("Starting broadcast and waiting to response...")
         broadcast(gen_wait_message())
@@ -84,3 +85,6 @@ class App:
 def main():
     app = App()
     app.connect()
+    me=User("d3ad","1712")
+    app.auth(me)
+
