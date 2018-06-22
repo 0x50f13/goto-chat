@@ -22,7 +22,7 @@ def udp_send(message,ip,port):
     sock.sendto(message, (ip, port))
     sock.close()
 
-def _udp_send(prefix:bytes,data:bytes,ip: str,port: input()):
+def _udp_send(prefix:bytes,data:bytes,ip: str,port: int):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     data=chunks(data,MAX_PACKET_SIZE)
     for chunk in data:
