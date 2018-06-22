@@ -99,6 +99,7 @@ def main():
     app = App()
     app.connect()
     me=User("17.12",".2017")
+    time.sleep(1)
     app.auth(me)
     app.idle()
 
