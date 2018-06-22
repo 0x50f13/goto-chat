@@ -2,7 +2,7 @@ import socket
 
 from core.config import APP_PORT,DEFAULT_ENCODING
 from .util import get_broadcast
-
+from net import logger
 
 def broadcast(message):
     server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
@@ -13,6 +13,7 @@ def broadcast(message):
     server.close()
 
 def udp_send(message,ip,port):
+    logger.debug("Sending %s to %s:%d"%(message,ip,port))
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # UDP
     sock.sendto(message, (ip, port))
     sock.close()

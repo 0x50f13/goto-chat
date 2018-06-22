@@ -23,14 +23,13 @@ class App:
     def data_handler(self,data):
         _data,addr=data
         cmd,data=decode_message(_data)
+        logger.debug("Received:%s"%str(_data))
         if cmd==MESSAGE_LOGIN:
             logger.info("Received login beacon from "+str(addr))
             if len(network.known_nodes)<MAX_NODE_COUNT:
                 logger.info("Accepting login beacon,sending MESSAGE_ACCEPTED")
                 udp_send(MESSAGE_CONN_ACCEPTED,addr[0],addr[1])
-        if cmd==MESSAGE_BEACON:
-            network.known_nodes.append(addr)
-            logger.info("Established connection:received beacon")
+                network.known_nodes.append(addr)
 
     def connect(self):
         logger.info("Starting broadcast and waiting to response...")
@@ -43,8 +42,8 @@ class App:
             _,addr=data
             cmd,data=decode_message(data[0])
             if cmd==MESSAGE_CONN_ACCEPTED:
-                udp_send(MESSAGE_BEACON,addr[0],addr[1])
                 logger.info("Established connection with "+addr[0])
+                network.known_nodes.append(addr)
         logger.info("Starting listener for broadcasts")
         self.listener.reset()
         self.listener.set_data_handler(self.data_handler)
