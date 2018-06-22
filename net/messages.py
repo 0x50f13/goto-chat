@@ -23,7 +23,7 @@ class Message:
         self.data_len = len(data)
         self.chunk_size = MAX_PACKET_SIZE
         self.uuid = str(uuid.uuid4())
-        self.chunks = []
+        self.chunks = [b"\255"]
         self.chunks = [chunk for chunk in chunks(self.data, self.chunk_size)]
 
     @staticmethod
@@ -61,7 +61,7 @@ class Message:
         self.data = ""
         for chunk in self.chunks:
             self.data += str(chunk,"utf-8")
-
+        return self.data
     def is_ready(self):
         f=self.is_vready(self.chunks)
         return f
@@ -77,7 +77,9 @@ class MessageController:  ##TODO:DDoS memory fluid protection
             self.start_recieve(packet,src)
             return
         self.messages[_uuid].add_packet(packet)
-
+        if self.messages[_uuid].is_ready():
+            self.end_recieve(self.messages[_uuid])
+            del self.messages[_uuid]
     def start_recieve(self, packet: bytes, src: str):
         _, _, _uuid, _ = Message.unpack_packet(packet)
         logger.info("Starting receiving data for uuid:" + str(_uuid,"utf-8"))
@@ -86,14 +88,9 @@ class MessageController:  ##TODO:DDoS memory fluid protection
             return
         self.messages.update({_uuid: Message(packet,src)})
 
-    def get_unread(self):
-        unread = []
-        for key in self.messages:
-            if self.messages[key].is_ready():
-                unread.append(self.messages[key])
-                #self.messages.pop(key)
-                logger.debug("Clean up:%s"%str(unread))
-        return unread
+    def end_recieve(self,m: Message):
+        print(m.chunks2data())
+
 
 
 messagectl = MessageController()

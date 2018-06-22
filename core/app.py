@@ -107,7 +107,6 @@ class App:
         if cmd == MESSAGE_AUTH_OK and not self.is_authenticated:
             self.auth_dict.update({addr[0]: True})
             self.send_msg(MESSAGE_SYNC)
-
         if cmd == MESSAGE_DATA_LONG:
             logger.info("Begin receiving long data...")
             messagectl.receive(data, addr[0])
