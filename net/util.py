@@ -26,3 +26,12 @@ def chunks(l, n):
     """Yield successive n-sized chunks from l."""
     for i in range(0, len(l), n):
         yield l[i:i + n]
+
+
+def bytes2int4(x: bytes):
+    assert len(x) == 4
+    return struct.unpack("<L", x)[0]
+
+
+def int42bytes(i: int):
+    return struct.pack(">I", i)

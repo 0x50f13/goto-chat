@@ -13,8 +13,8 @@ from .user import User
 
 ##TODO:String length checking e.g. names and messages
 class UIController:
-    def on_message(self, username, message, data):
-        pass
+    def on_message(self, data):
+        print(data)
 
     def on_file(self, username, file_hash, file_id):
         pass
@@ -56,7 +56,7 @@ class App:
                 udp_send(MESSAGE_AUTH_FAILURE, addr[0], APP_PORT)
             else:
                 udp_send(MESSAGE_AUTH_OK, addr[0], APP_PORT)
-                network.users.update({_user.username: _user})
+                network.users.update({_user.username: addr})
             for node in network.known_nodes:
                 if node not in self.auth_dict:
                     return
@@ -68,6 +68,15 @@ class App:
 
         if cmd == MESSAGE_AUTH_OK and not self.is_authenticated:
             self.auth_dict.update({addr[0]: True})
+
+        if cmd == MESSAGE_DATA_LONG:
+            messagectl.receive(data)
+
+    def send_msg(self, data: bytes):
+        msg = Message(data)
+        for node in network.known_nodes:
+            logger.info("Sending mssage to %s" % node)
+            udp_send(data, node, APP_PORT)
 
     def auth(self, user: User):
         logger.info("Starting authentication...")
