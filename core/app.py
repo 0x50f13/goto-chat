@@ -41,7 +41,8 @@ class UIController:
         t.start()
         while True:
             inp = input("\033[1m[%s]>\033[0m" % str(network.users["127.0.0.1"]))
-            self.app.send_msg(inp)
+            s=bytes(inp,"utf-8")
+            self.app.send_msg()
 
 
 ui = UIController()
@@ -154,7 +155,9 @@ class App:
 
     def idle(self):
         while True:
-            time.sleep(0.1)
+            inp = input("\033[1m[%s]>\033[0m" % str(network.users["127.0.0.1"]))
+            s = bytes(inp, "utf-8")
+            self.send_msg(s)
 
 
 def main():
@@ -164,5 +167,5 @@ def main():
     login = input("Login:")
     passw = getpass.getpass("Password:")
     app.auth(User(login, passw))
-    app.set_ui(ui)
-    ui.idle()
+    app.test()
+    app.idle()

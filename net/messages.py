@@ -42,10 +42,10 @@ class Message:
 
     def packets(self):
         packets = []
-        assert len(self.chunks[0]) < len(self.data)
-        assert len(self.chunks[0]) == self.chunk_size
+        assert len(self.chunks[0]) <= len(self.data)
+
         for i in range(len(self.chunks)):
-            packet = self.generate_header(i + 1) + self.chunks[i]
+            packet = self.generate_header(i + 1) + bytes(self.chunks[i])
             yield packet
 
     def add_packet(self, data: bytes):
@@ -77,7 +77,7 @@ class MessageController:  ##TODO:DDoS memory fluid protection
     def receive(self, packet: bytes, src: str):
         _, _, _uuid, _ = Message.unpack_packet(packet)
         if _uuid not in self.messages:
-            self.start_recieve(packet)
+            self.start_recieve(packet,src)
             return
         self.messages[_uuid].add_packet(packet)
 
@@ -85,9 +85,9 @@ class MessageController:  ##TODO:DDoS memory fluid protection
         _, _, _uuid, _ = Message.unpack_packet(packet)
         logger.info("Starting receiving data for uuid:" + _uuid)
         if _uuid in self.messages:
-            self.receive(packet)
+            self.receive(packet,src)
             return
-        self.messages.update({_uuid: Message(packet)})
+        self.messages.update({_uuid: Message(packet,src)})
 
     def get_unread(self):
         unread = []
