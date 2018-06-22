@@ -5,7 +5,7 @@ from core import logger
 from net import UDPListener, network
 from net.messages import *
 from net.nsocket import broadcast, udp_send
-from .config import BROADCAST_WAIT_TIMEOUT, MAX_NODE_COUNT
+from .config import BROADCAST_WAIT_TIMEOUT, MAX_NODE_COUNT, APP_PORT
 
 
 class App:
@@ -31,7 +31,7 @@ class App:
                 udp_send(MESSAGE_CONN_ACCEPTED, addr[0], addr[1])
                 network.known_nodes.append(addr)
         if cmd == MESSAGE_BEACON:
-            logger.info("Received beacon from %s"%str(addr))
+            logger.info("Received beacon from %s" % str(addr))
             network.known_nodes.append(addr)
             logger.info("Connection succesfully established")
 
@@ -47,6 +47,7 @@ class App:
             cmd, data = decode_message(data[0])
             if cmd == MESSAGE_CONN_ACCEPTED:
                 logger.info("Established connection with " + addr[0])
+                udp_send(MESSAGE_BEACON, addr[0], APP_PORT)
                 network.known_nodes.append(addr)
         logger.info("Starting listener for broadcasts")
         self.listener.reset()
@@ -62,7 +63,8 @@ class UIController:
     def on_file(self, username, file_hash, file_id):
         pass
 
-ui=UIController()
+
+ui = UIController()
 
 
 def main():
