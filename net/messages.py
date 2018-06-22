@@ -60,7 +60,7 @@ class Message:
     def chunks2data(self):
         self.data = ""
         for chunk in self.chunks:
-            self.data += chunk
+            self.data += str(chunk,"utf-8")
 
     def is_ready(self):
         f=self.is_vready(self.chunks)
