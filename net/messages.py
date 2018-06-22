@@ -83,7 +83,7 @@ class MessageController:  ##TODO:DDoS memory fluid protection
 
     def start_recieve(self, packet: bytes, src: str):
         _, _, _uuid, _ = Message.unpack_packet(packet)
-        logger.info("Starting receiving data for uuid:" + _uuid)
+        logger.info("Starting receiving data for uuid:" + str(_uuid,"utf-8"))
         if _uuid in self.messages:
             self.receive(packet,src)
             return
