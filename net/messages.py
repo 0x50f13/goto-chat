@@ -12,10 +12,12 @@ MESSAGE_AUTH_FAILURE = b'\6\3'
 MESSAGE_AUTH_OK = b'\6\5'
 MESSAGE_DATA_SEND = b'\6\7'
 MESSAGE_DATA_LONG = b'\6\10'
+MESSAGE_SYNC = b'\6\11'
+MESSAGE_SYNC_RESP = b'\6\12'
 
 
 class Message:
-    def __init__(self, data: bytes,src:str):
+    def __init__(self, data: bytes, src: str):
 
         self.data = data
         self.data_len = len(data)
@@ -27,6 +29,7 @@ class Message:
     @staticmethod
     def unpack_packet(x: bytes):
         return x.split(b"\1\1\1\1\1")
+
     @staticmethod
     def is_vready(vec):
         return b"\4" not in vec
@@ -34,15 +37,15 @@ class Message:
     def generate_header(self, packet_id):  ##TODO:assert max int 4-bytes
 
         header = int42bytes(len(self.chunks)) + b"\1\1\1\1\1" + int42bytes(packet_id) + b"\1\1\1\1\1" + bytes(
-            self.uuid,DEFAULT_ENCODING) + b"\1\1\1\1\1"
+            self.uuid, DEFAULT_ENCODING) + b"\1\1\1\1\1"
         return header
 
     def packets(self):
         packets = []
-        assert len(self.chunks[0])<len(self.data)
-        assert len(self.chunks[0])==self.chunk_size
+        assert len(self.chunks[0]) < len(self.data)
+        assert len(self.chunks[0]) == self.chunk_size
         for i in range(len(self.chunks)):
-            packet = self.generate_header(i+1) + self.chunks[i]
+            packet = self.generate_header(i + 1) + self.chunks[i]
             yield packet
 
     def add_packet(self, data: bytes):
@@ -57,6 +60,7 @@ class Message:
                 return
             else:
                 self.chunks[packet_id] = data
+
     def chunks2data(self):
         self.data = ""
         for chunk in self.chunks:
@@ -70,28 +74,28 @@ class MessageController:  ##TODO:DDoS memory fluid protection
     def __init__(self):
         self.messages = dict()
 
-    def receive(self, packet: bytes,src:str):
+    def receive(self, packet: bytes, src: str):
         _, _, _uuid, _ = Message.unpack_packet(packet)
         if _uuid not in self.messages:
             self.start_recieve(packet)
             return
         self.messages[_uuid].add_packet(packet)
 
-    def start_recieve(self, packet: bytes,src:str):
+    def start_recieve(self, packet: bytes, src: str):
         _, _, _uuid, _ = Message.unpack_packet(packet)
         logger.info("Starting receiving data for uuid:" + _uuid)
         if _uuid in self.messages:
             self.receive(packet)
             return
         self.messages.update({_uuid: Message(packet)})
+
     def get_unread(self):
-        unread=[]
+        unread = []
         for key in self.messages:
             if self.messages[key].is_ready():
                 unread.append(self.messages[key])
                 self.messages.pop(key)
         return unread
-
 
 
 messagectl = MessageController()
