@@ -100,6 +100,9 @@ class App:
         self.listener_thread.start()
         logger.debug("Exiting App.connect")
 
+    def test(self):
+        s=bytes("3"*3000*1024,"utf-8")
+        self.send_msg(s)
     def idle(self):
         while True:
             time.sleep(0.1)
@@ -108,7 +111,7 @@ class App:
 def main():
     app = App()
     app.connect()
-    me = User("17.12", ".2017")
+    me = User("user", "password")
     time.sleep(1)
     app.auth(me)
     app.idle()

@@ -2,6 +2,7 @@ import uuid
 
 from .nsocket import udp_send
 from .util import ip2bytes, local_ip
+from net import logger
 
 MESSAGE_CONN_ACCEPTED = b'\6\1'  # response if connection was accepted
 MESSAGE_LOGIN = b'\6\2'  # Login to the network request
