@@ -64,10 +64,12 @@ class App:
 
 
     def auth(self,user: User):
+        logger.info("Starting authentication...")
         payload=user.encode()
         payload+="\12\12\12\12\12"
         payload+=ip2bytes(local_ip())##NEEDED IF AUTHENTICATION'LL REQUIRE PASSWORD,SO EACH NODE COULD SEND A CALLBACK
         for node in network.known_nodes:
+            logger.debug("Sending auth request to node:"+str(node))
             udp_send(MESSAGE_AUTH+payload,node[0],APP_PORT)
         logger.info("Done sending auth requests to other nodes")
 
@@ -77,7 +79,7 @@ class App:
         logger.info("Starting listener for broadcasts")
         self.listener.reset()
         self.listener.set_data_handler(self.data_handler)
-        self.listener_thread = threading.Thread(target=self.listener.run)
+        self.listener_thread = threading.Thread(target=self.listener.run,daemon=True)
         self.listener_thread.run()
 
 
