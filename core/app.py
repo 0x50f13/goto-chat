@@ -41,7 +41,7 @@ class UIController:
         t.start()
         while True:
             inp = input("\033[1m[%s]>\033[0m" % str(network.users["127.0.0.1"]))
-            s=bytes(inp,"utf-8")
+            s = bytes(inp, "utf-8")
             self.app.send_msg()
 
 
@@ -123,7 +123,7 @@ class App:
             p4s = msg.packets()
             for pack in p4s:
                 logger.info("Sending packet to %s,len=%d" % (node, len(pack)))
-                udp_send(pack, node[0], APP_PORT)
+                send_message(MESSAGE_DATA_LONG, pack, node[0], APP_PORT)
 
     def auth(self, user: User):
         logger.info("Starting authentication...")
@@ -153,12 +153,6 @@ class App:
         s = bytes("3" * 10000, "utf-8")
         self.send_msg(s)
 
-    def idle(self):
-        while True:
-            inp = input("\033[1m[%s]>\033[0m" % str(network.users["127.0.0.1"]))
-            s = bytes(inp, "utf-8")
-            self.send_msg(s)
-
 
 def main():
     app = App()
@@ -167,5 +161,4 @@ def main():
     login = input("Login:")
     passw = getpass.getpass("Password:")
     app.auth(User(login, passw))
-    app.test()
-    app.idle()
+    ui.idle()
