@@ -47,7 +47,7 @@ class App:
             logger.info("Adding %s to known nodes list"%str(addr))
             network.known_nodes.append(addr)
         if cmd == MESSAGE_AUTH:#Authentication procedure
-            user,_=data.split("\17\12\20\17")
+            user,_=data.split(b"\17\12\20\17")
             _user=User("","")
             _user.decode(user)
             if _user.username in network.users:
