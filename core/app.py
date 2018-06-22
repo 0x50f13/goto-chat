@@ -44,10 +44,12 @@ class App:
             logger.info("Received login req from " + str(addr))
             udp_send(MESSAGE_CONN_ACCEPTED, addr[0], APP_PORT)
             logger.info("Adding %s to known nodes" % addr[0])
-            network.known_nodes.append(addr)
+            if addr not in network.known_nodes:
+                network.known_nodes.append(addr)
         if cmd == MESSAGE_CONN_ACCEPTED:
             logger.info("Adding %s to known nodes list" % str(addr))
-            network.known_nodes.append(addr)
+            if addr not in network.known_nodes:
+                network.known_nodes.append(addr)
         if cmd == MESSAGE_AUTH:  # Authentication procedure
             user, _ = data.split(b"\17\12\20\17")
             _user = User("", "")
@@ -75,8 +77,10 @@ class App:
     def send_msg(self, data: bytes):
         msg = Message(data)
         for node in network.known_nodes:
-            logger.info("Sending mssage to %s" % node)
-            udp_send(data, node, APP_PORT)
+            p4s=msg.packets()
+            for pack in p4s:
+                logger.info("Sending packet to %s,len=%d"%(node,len(pack)))
+                udp_send(pack, node[0], APP_PORT)
 
     def auth(self, user: User):
         logger.info("Starting authentication...")
@@ -101,7 +105,8 @@ class App:
         logger.debug("Exiting App.connect")
 
     def test(self):
-        s=bytes("3"*3000*1024,"utf-8")
+        logger.info("Begin testing")
+        s=bytes("3"*10000,"utf-8")
         self.send_msg(s)
     def idle(self):
         while True:
@@ -117,3 +122,4 @@ def main():
     input("[PRESS ENTER TO TEST]")
     app.test()
     app.idle()
+

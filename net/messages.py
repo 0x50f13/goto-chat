@@ -1,8 +1,9 @@
 import uuid
 
-from .nsocket import udp_send
-from .util import ip2bytes, local_ip
+from core.config import MAX_PACKET_SIZE, DEFAULT_ENCODING
 from net import logger
+from .nsocket import udp_send
+from .util import ip2bytes, local_ip, int42bytes, chunks
 
 MESSAGE_CONN_ACCEPTED = b'\6\1'  # response if connection was accepted
 MESSAGE_LOGIN = b'\6\2'  # Login to the network request
@@ -12,6 +13,7 @@ MESSAGE_AUTH_OK = b'\6\5'
 MESSAGE_DATA_SEND = b'\6\7'
 MESSAGE_DATA_LONG = b'\6\10'
 
+
 class Message:
     def __init__(self, data: bytes):
         self.data = data
@@ -19,20 +21,24 @@ class Message:
         self.chunk_size = MAX_PACKET_SIZE
         self.uuid = str(uuid.uuid4())
         self.chunks = []
+        self.chunks = [chunk for chunk in chunks(self.data, self.chunk_size)]
 
     @staticmethod
     def unpack_packet(x: bytes):
         return x.split(b"\1\1\1\1\1")
 
     def generate_header(self, packet_id):  ##TODO:assert max int 4-bytes
-        self.chunks = chunks(self.data, self.chunk_size)
+
         header = int42bytes(len(self.chunks)) + b"\1\1\1\1\1" + int42bytes(packet_id) + b"\1\1\1\1\1" + bytes(
-            self.uuid) + b"\1\1\1\1\1"
+            self.uuid,DEFAULT_ENCODING) + b"\1\1\1\1\1"
         return header
 
     def packets(self):
+        packets = []
+        assert len(self.chunks[0])<len(self.data)
+        assert len(self.chunks[0])==self.chunk_size
         for i in range(len(self.chunks)):
-            packet = self.generate_header(i) + self.chunks[i]
+            packet = self.generate_header(i+1) + self.chunks[i]
             yield packet
 
     def add_packet(self, data: bytes):
@@ -75,6 +81,7 @@ class MessageController:  ##TODO:DDoS memory fluid protection
 
 
 messagectl = MessageController()
+
 
 def gen_wait_message():
     return MESSAGE_LOGIN + ip2bytes(local_ip())

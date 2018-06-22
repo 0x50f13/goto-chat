@@ -20,8 +20,6 @@ def broadcast(message):
 
 
 def udp_send(message, ip, port):
-    if len(message) > MAX_PACKET_SIZE:
-        raise TooLongPacket("Packet size is more than MAX_PACKET_SIZE,use async_udp_send")
     logger.debug("Sending %s to %s:%d" % (message, ip, port))
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # UDP
     sock.sendto(message, (ip, port))
