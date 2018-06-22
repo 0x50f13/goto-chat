@@ -40,6 +40,14 @@ class App:
         if cmd == MESSAGE_CONN_ACCEPTED:
             logger.info("Adding %s to known nodes list"%str(addr))
             network.known_nodes.append(addr)
+        if cmd == MESSAGE_AUTH:
+            user,_=data.split("\12\12\12\12\12")
+            _user=User("","")
+            _user.decode(user)
+            if _user.username in network.users:
+
+
+
 
 
     def auth(self,user: User):
@@ -47,7 +55,7 @@ class App:
         payload+="\12\12\12\12\12"
         payload+=ip2bytes(local_ip())##NEEDED IF AUTHENTICATION'LL REQUIRE PASSWORD,SO EACH NODE COULD SEND A CALLBACK
         for node in network.known_nodes:
-            udp_send(MESSSAGE_AUTH+payload,node[0],node[1])
+            udp_send(MESSSAGE_AUTH+payload,node[0],APP_PORT)
         logger.info("Done sending auth requests to other nodes")
     def connect(self):
         logger.info("Starting broadcast and waiting to response...")
