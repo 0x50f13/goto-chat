@@ -15,7 +15,8 @@ MESSAGE_DATA_LONG = b'\6\10'
 
 
 class Message:
-    def __init__(self, data: bytes):
+    def __init__(self, data: bytes,src:str):
+
         self.data = data
         self.data_len = len(data)
         self.chunk_size = MAX_PACKET_SIZE
@@ -26,6 +27,9 @@ class Message:
     @staticmethod
     def unpack_packet(x: bytes):
         return x.split(b"\1\1\1\1\1")
+    @staticmethod
+    def is_vready(vec):
+        return b"\4" not in vec
 
     def generate_header(self, packet_id):  ##TODO:assert max int 4-bytes
 
@@ -53,31 +57,41 @@ class Message:
                 return
             else:
                 self.chunks[packet_id] = data
-
     def chunks2data(self):
-        self.data = []
+        self.data = ""
         for chunk in self.chunks:
-            self.chunks += chunk
+            self.data += chunk
+
+    def is_ready(self):
+        self.is_vready(self.chunks)
 
 
 class MessageController:  ##TODO:DDoS memory fluid protection
     def __init__(self):
         self.messages = dict()
 
-    def receive(self, packet: bytes):
+    def receive(self, packet: bytes,src:str):
         _, _, _uuid, _ = Message.unpack_packet(packet)
         if _uuid not in self.messages:
             self.start_recieve(packet)
             return
         self.messages[_uuid].add_packet(packet)
 
-    def start_recieve(self, packet: bytes):
+    def start_recieve(self, packet: bytes,src:str):
         _, _, _uuid, _ = Message.unpack_packet(packet)
         logger.info("Starting receiving data for uuid:" + _uuid)
         if _uuid in self.messages:
             self.receive(packet)
             return
         self.messages.update({_uuid: Message(packet)})
+    def get_unread(self):
+        unread=[]
+        for key in self.messages:
+            if self.messages[key].is_ready():
+                unread.append(self.messages[key])
+                self.messages.pop(key)
+        return unread
+
 
 
 messagectl = MessageController()
