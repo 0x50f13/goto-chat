@@ -4,6 +4,7 @@ MESSAGE_CONN_ACCEPTED = b'\6\1'
 MESSAGE_LOGIN = b'\6\2'
 MESSAGE_REQUEST_NET = b'\6\3'
 MESSAGE_AUTH=b'\6\4'
+MESSAGE_BEACON=b'\6\5'
 
 
 def gen_wait_message():

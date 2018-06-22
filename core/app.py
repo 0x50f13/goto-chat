@@ -28,7 +28,9 @@ class App:
             if len(network.known_nodes)<MAX_NODE_COUNT:
                 logger.info("Accepting login beacon,sending MESSAGE_ACCEPTED")
                 udp_send(MESSAGE_CONN_ACCEPTED,addr[0],addr[1])
-
+        if cmd==MESSAGE_BEACON:
+            network.known_nodes.append(addr)
+            logger.info("Established connection:received beacon")
 
     def connect(self):
         logger.info("Starting broadcast and waiting to response...")
@@ -38,7 +40,11 @@ class App:
             logger.error("Failed to find any other nodes")
         else:
             logger.debug("Received data(%s),so adding address to known nodes"%data[0])
-            network.known_nodes.append(data[1])
+            _,addr=data
+            cmd,data=decode_message(data[0])
+            if cmd==MESSAGE_CONN_ACCEPTED:
+                udp_send(MESSAGE_BEACON,addr[0],addr[1])
+                logger.info("Established connection with "+addr[0])
         logger.info("Starting listener for broadcasts")
         self.listener.reset()
         self.listener.set_data_handler(self.data_handler)
