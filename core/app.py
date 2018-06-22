@@ -32,6 +32,8 @@ class UIController:
                 print("\033[1m[%s]:\033[0m%s"%(network.users[msg.src],msg.chunks2data()))
             time.sleep(0.5)
     def idle(self):
+        t=threading.Thread(target=self.updater,daemon=True)
+        t.start()
         while True:
             inp=input("\033[1m[%s]>\033[0m"%str(network.users["127.0.0.1"]))
 
