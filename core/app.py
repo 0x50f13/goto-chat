@@ -92,6 +92,7 @@ class App:
             logger.debug("Sending auth request to node:" + str(node))
             udp_send(MESSAGE_AUTH + payload, node[0], APP_PORT)
         logger.info("Done sending auth requests to other nodes")
+        network.users.append(user)
 
     def connect(self):
         logger.info("Starting broadcast and waiting to response...")
@@ -119,7 +120,7 @@ def main():
     me = User("user", "password")
     time.sleep(1)
     app.auth(me)
-    input("[PRESS ENTER TO TEST]")
     app.test()
     app.idle()
+
 
