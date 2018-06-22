@@ -7,7 +7,7 @@ class User:
     def __init__(self, name: str, passwd: str):
         self.username = name
         self.passwd = passwd
-        self.hsh = sha512(passwd + name)
+        self.hsh = sha512((passwd + name).encode(DEFAULT_ENCODING)).hexdigest()
         self.online = False
         self.node_ip = "0.0.0.0"
 

@@ -1,5 +1,7 @@
+#WARNING:In this code thousands of bugs and holes.Beware!!!
 import threading
 from hashlib import sha512
+import time
 
 from core import logger
 from net import UDPListener, network
@@ -25,6 +27,8 @@ class App:
         self.listener = UDPListener()
         self.is_authenticated=False
         self.auth_dict=dict()
+#        self.end_connect=threading.Event()
+#        self.end_connect.clear()
 
     def set_user(self, user:User):
         self.user=user
@@ -36,13 +40,14 @@ class App:
         logger.debug("Received:%s" % str(_data))
         if cmd == MESSAGE_LOGIN:##Establsihing connctions is here
             logger.info("Received login req from " + str(addr))
-            udp_send(MESSAGE_CONN_ACCEPTED, addr[0], addr[1])
+            udp_send(MESSAGE_CONN_ACCEPTED, addr[0], APP_PORT)
+            logger.info("Adding %s to known nodes"%addr[0])
             network.known_nodes.append(addr)
         if cmd == MESSAGE_CONN_ACCEPTED:
             logger.info("Adding %s to known nodes list"%str(addr))
             network.known_nodes.append(addr)
         if cmd == MESSAGE_AUTH:#Authentication procedure
-            user,_=data.split("\12\12\12\12\12")
+            user,_=data.split("\17\12\20\17")
             _user=User("","")
             _user.decode(user)
             if _user.username in network.users:
@@ -56,7 +61,7 @@ class App:
             del self.auth_dict
             self.is_authenticated=True
 
-        if cmd == MESSAGE_AUTH_FAILURE and not self.is_authenticated:
+        if cmd == MESSAGE_AUTH_FAILURE and not self.is_authenticated and addr[0] in network.known_nodes:
             raise SystemError("Authentication failed!")
 
         if cmd == MESSAGE_AUTH_OK and not self.is_authenticated:
@@ -66,7 +71,7 @@ class App:
     def auth(self,user: User):
         logger.info("Starting authentication...")
         payload=user.encode()
-        payload+="\12\12\12\12\12"
+        payload+=b"\17\12\20\17"
         payload+=ip2bytes(local_ip())##NEEDED IF AUTHENTICATION'LL REQUIRE PASSWORD,SO EACH NODE COULD SEND A CALLBACK
         for node in network.known_nodes:
             logger.debug("Sending auth request to node:"+str(node))
@@ -79,14 +84,21 @@ class App:
         logger.info("Starting listener for broadcasts")
         self.listener.reset()
         self.listener.set_data_handler(self.data_handler)
-        self.listener_thread = threading.Thread(target=self.listener.run,daemon=True)
-        self.listener_thread.run()
+        self.listener_thread = threading.Thread(target=self.listener.run)
+        self.listener_thread.daemon=True
+        self.listener_thread.start()
+        logger.debug("Exiting App.connect")
+
+    def idle(self):
+        while True:
+            time.sleep(0.1)
 
 
 
 def main():
     app = App()
     app.connect()
-    me=User("d3ad","1712")
+    me=User("17.12",".2017")
     app.auth(me)
+    app.idle()
 
