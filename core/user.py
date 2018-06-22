@@ -19,17 +19,17 @@ class User:
         username, hsh = s.split("\3\2")
         username = username.replace("\2", "")
         hsh = hsh.replace("\3", "")
-        self.username=username
-        self.hsh=hsh
+        self.username = username
+        self.hsh = hsh
 
     def check(self):
-        if sha512(self.passwd+self.username)==self.hsh:
+        if sha512(self.passwd + self.username) == self.hsh:
             return True
         else:
             return False
 
     def __repr__(self):
-        return "<User '%s'>"%self.username
+        return "<User '%s'>" % self.username
 
     def __str__(self):
         return self.username

@@ -8,8 +8,10 @@ logger = logging.getLogger(__name__)
 stream_handler = logging.StreamHandler()
 stream_handler.setFormatter(log_formatter)
 
+
 class TooLongPacket(Exception):
     pass
+
 
 class UDPListener:
     def __init__(self, ip="0.0.0.0", port=APP_PORT):

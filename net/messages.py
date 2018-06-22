@@ -8,6 +8,11 @@ MESSAGE_LOGIN = b'\6\2'  # Login to the network request
 MESSAGE_AUTH = b'\6\4'
 MESSAGE_AUTH_FAILURE = b'\6\3'
 MESSAGE_AUTH_OK = b'\6\5'
+MESSAGE_DATA_SEND = b'\6\7'
+
+class TextMessage:
+    def __init__(self):
+        self.uuid=uuid.uuid4()
 
 
 def gen_wait_message():
