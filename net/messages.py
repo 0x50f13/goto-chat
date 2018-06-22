@@ -1,8 +1,7 @@
 from .util import ip2bytes, local_ip
 
-MESSAGE_CONN_ACCEPTED = b'\6\1'
-MESSAGE_LOGIN = b'\6\2'
-MESSAGE_REQUEST_NET = b'\6\3'
+MESSAGE_CONN_ACCEPTED = b'\6\1'#response if connection was accepted
+MESSAGE_LOGIN = b'\6\2'#Login to the network request
 MESSAGE_AUTH=b'\6\4'
 MESSAGE_BEACON=b'\6\5'
 
