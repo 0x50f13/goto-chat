@@ -1,4 +1,5 @@
 # WARNING:In this code thousands of bugs and holes.Beware!!!
+# WARNING:Spaghetti code hazard!!!
 import threading
 import time
 
@@ -9,15 +10,14 @@ from net.nsocket import broadcast, udp_send
 from net.util import local_ip
 from .config import APP_PORT
 from .user import User
+import getpass
 
 
 ##TODO:String length checking e.g. names and messages
 class UIController:
-    def on_message(self, data):
-        print(data)
+    def on_auth_failure(self):
+        print("Failedm to authnticate in network :(")
 
-    def on_file(self, username, file_hash, file_id):
-        pass
 
 
 ui = UIController()
@@ -28,9 +28,12 @@ class App:
         self.listener = UDPListener()
         self.is_authenticated = False
         self.auth_dict = dict()
+        self.ui=None
 
     #        self.end_connect=threading.Event()
     #        self.end_connect.clear()
+    def set_ui(self,ui):
+        self.ui=ui
 
     def set_user(self, user: User):
         self.user = user
@@ -72,6 +75,7 @@ class App:
             self.auth_dict.update({addr[0]: True})
 
         if cmd == MESSAGE_DATA_LONG:
+            logger.info("Begin receiving long data...")
             messagectl.receive(data)
 
     def send_msg(self, data: bytes):
@@ -105,7 +109,7 @@ class App:
         self.listener_thread.start()
         logger.debug("Exiting App.connect")
 
-    def test(self):
+    def test(self):###DELETEME###
         logger.info("Begin testing")
         s=bytes("3"*10000,"utf-8")
         self.send_msg(s)
@@ -117,10 +121,6 @@ class App:
 def main():
     app = App()
     app.connect()
-    me = User("user", "password")
-    time.sleep(1)
-    app.auth(me)
-    app.test()
-    app.idle()
-
-
+    logger.info("Seems to be connected")
+    login=input("Login:")
+    passw=getpass.getpass("Password:")
