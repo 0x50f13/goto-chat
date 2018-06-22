@@ -18,7 +18,7 @@ MESSAGE_SYNC_RESP = b'\6\12'
 
 class Message:
     def __init__(self, data: bytes, src: str):
-
+        self.src=src
         self.data = data
         self.data_len = len(data)
         self.chunk_size = MAX_PACKET_SIZE
@@ -32,7 +32,7 @@ class Message:
 
     @staticmethod
     def is_vready(vec):
-        return b"\4" not in vec
+        return b"\255" not in vec
 
     def generate_header(self, packet_id):  ##TODO:assert max int 4-bytes
 
@@ -51,15 +51,11 @@ class Message:
     def add_packet(self, data: bytes):
         chunks_count, packet_id, _uuid, data = data.split(b"\1\1\1\1\1")
         if not self.chunks:  # First packet
-            self.chunks = [b"\4"] * chunks_count
+            self.chunks = [b"\255"] * chunks_count
             self.uuid = _uuid
             self.chunks[packet_id] = data
         else:
-            if self.uuid != _uuid:
-                logger.warning("UUID mismatch while receiving packets.Ignored.")
-                return
-            else:
-                self.chunks[packet_id] = data
+            self.chunks[packet_id] = data
 
     def chunks2data(self):
         self.data = ""
@@ -67,7 +63,8 @@ class Message:
             self.data += chunk
 
     def is_ready(self):
-        self.is_vready(self.chunks)
+        f=self.is_vready(self.chunks)
+        return f
 
 
 class MessageController:  ##TODO:DDoS memory fluid protection
@@ -94,7 +91,7 @@ class MessageController:  ##TODO:DDoS memory fluid protection
         for key in self.messages:
             if self.messages[key].is_ready():
                 unread.append(self.messages[key])
-                self.messages.pop(key)
+                #self.messages.pop(key)
         return unread
 
 

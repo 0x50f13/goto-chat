@@ -1,6 +1,9 @@
 import socket
 import struct
 from ipaddress import IPv4Network
+from threading import Lock
+
+LOCK=Lock()
 
 from core.config import NET_DATA, DEFAULT_ENCODING
 
@@ -35,3 +38,10 @@ def bytes2int4(x: bytes):
 
 def int42bytes(i: int):
     return struct.pack(">I", i)
+
+def lock(fn):
+    def wrap(*args,**kwargs):
+        LOCK.acquire()
+        fn(*args,**kwargs)
+        LOCK.release()
+    return wrap

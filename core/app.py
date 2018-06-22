@@ -1,5 +1,7 @@
 # WARNING:In this code thousands of bugs and holes.Beware!!!
 # WARNING:Spaghetti code hazard!!!
+# WARNING: Watching this code is hazardous for your psychological state!
+#          Looking on this code could lead to long and deep depression
 import getpass
 import json
 import sys
@@ -13,7 +15,7 @@ from net.nsocket import broadcast, udp_send
 from net.util import local_ip
 from .config import APP_PORT
 from .user import User
-
+from net.util import LOCK,lock
 
 ##TODO:String length checking e.g. names and messages
 class UIController:
@@ -30,6 +32,7 @@ class UIController:
         print("\033[1m%s\033[0m:%s")
 
     def updater(self):
+        logger.info("Updater has started")
         while True:
             unread = messagectl.get_unread()
             for msg in unread:
@@ -38,11 +41,13 @@ class UIController:
 
     def idle(self):
         t = threading.Thread(target=self.updater, daemon=True)
-        t.start()
+        t.run()
         while True:
             inp = input("\033[1m[%s]>\033[0m" % str(network.users["127.0.0.1"]))
+            LOCK.acquire()
             s = bytes(inp, "utf-8")
             self.app.send_msg(s)
+            LOCK.release()
 
 
 ui = UIController()
@@ -65,6 +70,7 @@ class App:
         self.user = user
         logger.info("Setted user to %s" % (self.user))
 
+    @lock
     def data_handler(self, data):
         _data, addr = data
         cmd, data = decode_message(_data)
